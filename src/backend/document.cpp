@@ -3,6 +3,9 @@
 #include <glibmm/miscutils.h>
 #include <giomm/file.h>
 #include <podofo.h>
+#include <range/v3/all.hpp>
+#include <functional>
+#include <iostream>
 
 namespace Slicer {
 
@@ -46,36 +49,11 @@ std::string getTempFilePath()
     return tempFilePath;
 }
 
-void makePDFCopy(const Glib::RefPtr<Gio::ListStore<Page>>& pages,
-                 const std::string& sourcePath,
-                 const std::string& destinationPath)
-{
-    throw std::runtime_error("Saving not implemented yet");
-    //    PDFWriter pdfWriter;
-    //    pdfWriter.StartPDF(destinationPath, ePDFVersionMax);
-    //    PDFDocumentCopyingContext* copyingContext = pdfWriter.CreatePDFCopyingContext(sourcePath);
-
-    for (unsigned int i = 0; i < pages->get_n_items(); ++i) {
-        Glib::RefPtr<Slicer::Page> page = pages->get_item(i);
-
-        const auto[width, height] = page->size();
-
-        //        auto pdfPage = new PDFPage{};
-        //        pdfPage->SetMediaBox(PDFRectangle(0, 0, width, height));
-
-        //        copyingContext->MergePDFPageToPage(pdfPage, static_cast<unsigned>(page->number()));
-        //        pdfWriter.WritePageAndRelease(pdfPage);
-    }
-
-    //    pdfWriter.EndPDF();
-    //    delete copyingContext;
-}
-
 void Document::saveDocument(const std::string& destinationPath) const
 {
     const std::string tempFilePath = getTempFilePath();
 
-    makePDFCopy(m_pages, m_sourcePath, getTempFilePath());
+    makePDFCopy(m_sourcePath, getTempFilePath());
 
     auto oldFile = Gio::File::create_for_path(destinationPath);
     auto newFile = Gio::File::create_for_path(tempFilePath);
@@ -98,5 +76,55 @@ void Document::removePageRange(int first, int last)
 {
     auto command = std::make_shared<RemovePageRangeCommand>(m_pages, first, last);
     m_commandManager.execute(command);
+}
+
+void Document::makePDFCopy(const std::string& sourcePath,
+                           const std::string& destinationPath) const
+{
+    PoDoFo::PdfMemDocument sourceDocument{sourcePath.c_str()};
+    const std::vector<unsigned int> numbersToDelete = pageNumbersToDeleteOnSaving();
+
+    for (unsigned int i = 0; i < numbersToDelete.size(); ++i)
+        sourceDocument.DeletePages(static_cast<int>(numbersToDelete.at(i) - i),
+                                   1);
+
+    try {
+        sourceDocument.Write(destinationPath.c_str());
+    }
+    catch (PoDoFo::PdfError& e) {
+        std::cerr << e.what() << std::endl;
+
+        const PoDoFo::TDequeErrorInfo& callStack = e.GetCallstack();
+
+        if (callStack.empty())
+            std::cerr << "The callstack is empty" << std::endl;
+        else
+            std::cerr << "The callstack has something:" << std::endl;
+
+        //        for (const PoDoFo::PdfErrorInfo& info : callStack)
+        //            std::cerr << info.GetLine() << std::endl;
+        std::cerr << callStack.back().GetFilename() << " - Line " << callStack.back().GetLine() << std::endl;
+    }
+}
+
+std::vector<unsigned int> Document::pageNumbers() const
+{
+    std::vector<unsigned int> numbers;
+
+    for (unsigned int i = 0; i < m_pages->get_n_items(); ++i)
+        numbers.push_back(static_cast<unsigned>(m_pages->get_item(i)->number()));
+
+    return numbers;
+}
+
+std::vector<unsigned int> Document::pageNumbersToDeleteOnSaving() const
+{
+    std::vector<unsigned int> numbersToDelete;
+
+    ranges::set_difference(ranges::view::iota(0, poppler_document_get_n_pages(m_popplerDocument)),
+                           pageNumbers(),
+                           ranges::back_inserter(numbersToDelete));
+
+    return numbersToDelete;
 }
 }

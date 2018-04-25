@@ -28,6 +28,11 @@ private:
     std::string m_sourcePath;
     Glib::RefPtr<Gio::ListStore<Page>> m_pages;
     CommandManager m_commandManager;
+
+    void makePDFCopy(const std::string& sourcePath,
+                     const std::string& destinationPath) const;
+    std::vector<unsigned int> pageNumbers() const;
+    std::vector<unsigned int> pageNumbersToDeleteOnSaving() const;
 };
 }
 
