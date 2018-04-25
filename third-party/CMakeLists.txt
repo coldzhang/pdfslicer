@@ -1,5 +1,4 @@
 add_subdirectory(CTPL)
-add_subdirectory(PDF-Writer)
 
 set (RANGE_V3_NO_TESTING ON)
 set (RANGE_V3_NO_EXAMPLE ON)

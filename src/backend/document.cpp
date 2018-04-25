@@ -2,9 +2,7 @@
 #include <glibmm/convert.h>
 #include <glibmm/miscutils.h>
 #include <giomm/file.h>
-#include <PDFWriter.h>
-#include <PDFPage.h>
-#include <PDFDocumentCopyingContext.h>
+#include <podofo.h>
 
 namespace Slicer {
 
@@ -52,24 +50,25 @@ void makePDFCopy(const Glib::RefPtr<Gio::ListStore<Page>>& pages,
                  const std::string& sourcePath,
                  const std::string& destinationPath)
 {
-    PDFWriter pdfWriter;
-    pdfWriter.StartPDF(destinationPath, ePDFVersionMax);
-    PDFDocumentCopyingContext* copyingContext = pdfWriter.CreatePDFCopyingContext(sourcePath);
+    throw std::runtime_error("Saving not implemented yet");
+    //    PDFWriter pdfWriter;
+    //    pdfWriter.StartPDF(destinationPath, ePDFVersionMax);
+    //    PDFDocumentCopyingContext* copyingContext = pdfWriter.CreatePDFCopyingContext(sourcePath);
 
     for (unsigned int i = 0; i < pages->get_n_items(); ++i) {
         Glib::RefPtr<Slicer::Page> page = pages->get_item(i);
 
         const auto[width, height] = page->size();
 
-        auto pdfPage = new PDFPage{};
-        pdfPage->SetMediaBox(PDFRectangle(0, 0, width, height));
+        //        auto pdfPage = new PDFPage{};
+        //        pdfPage->SetMediaBox(PDFRectangle(0, 0, width, height));
 
-        copyingContext->MergePDFPageToPage(pdfPage, static_cast<unsigned>(page->number()));
-        pdfWriter.WritePageAndRelease(pdfPage);
+        //        copyingContext->MergePDFPageToPage(pdfPage, static_cast<unsigned>(page->number()));
+        //        pdfWriter.WritePageAndRelease(pdfPage);
     }
 
-    pdfWriter.EndPDF();
-    delete copyingContext;
+    //    pdfWriter.EndPDF();
+    //    delete copyingContext;
 }
 
 void Document::saveDocument(const std::string& destinationPath) const

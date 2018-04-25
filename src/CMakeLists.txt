@@ -49,7 +49,7 @@ target_link_libraries(pdfslicer
     ${GTKMM_LIBRARIES}
     ${CAIROMM_LIBRARIES}
     ${POPPLER_LIBRARIES}
-    PDFWriter
+	"podofo"
 	CTPL
 	range-v3)
 
@@ -69,9 +69,10 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (MINGW)
-	set (PDFWRITER_DLL "${CMAKE_BINARY_DIR}/third-party/PDF-Writer/PDFWriter/libPDFWriter.dll")
-	set (PDFWRITER_AESGM_DLL "${CMAKE_BINARY_DIR}/third-party/PDF-Writer/LibAesgm/libLibAesgm.dll")
-	set (PDFWRITER_TIFF_DLL "${CMAKE_BINARY_DIR}/third-party/PDF-Writer/LibTiff/libLibTiff.dll")
+#   FIXME Add the equivalent PoDoFo lib files
+#	set (PDFWRITER_DLL "${CMAKE_BINARY_DIR}/third-party/PDF-Writer/PDFWriter/libPDFWriter.dll")
+#	set (PDFWRITER_AESGM_DLL "${CMAKE_BINARY_DIR}/third-party/PDF-Writer/LibAesgm/libLibAesgm.dll")
+#	set (PDFWRITER_TIFF_DLL "${CMAKE_BINARY_DIR}/third-party/PDF-Writer/LibTiff/libLibTiff.dll")
 
 	set (FEDORA_MINGW_LIBBINPATH "/usr/x86_64-w64-mingw32/sys-root/mingw/bin")
 
@@ -120,9 +121,10 @@ if (MINGW)
 	set (EXPAT_DLL "${FEDORA_MINGW_LIBBINPATH}/libexpat-1.dll")
 
 	set (SLICER_DLLS
-		${PDFWRITER_DLL}
-		${PDFWRITER_AESGM_DLL};
-		${PDFWRITER_TIFF_DLL};
+#		FIXME Add the equivalent PoDoFo files
+#		${PDFWRITER_DLL}
+#		${PDFWRITER_AESGM_DLL};
+#		${PDFWRITER_TIFF_DLL};
 		${ATK_DLL};
 		${ATKMM_DLL};
 		${CAIRO_DLL};
