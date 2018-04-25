@@ -4,8 +4,6 @@
 #include <giomm/file.h>
 #include <podofo.h>
 #include <range/v3/all.hpp>
-#include <functional>
-#include <iostream>
 
 namespace Slicer {
 
@@ -88,23 +86,7 @@ void Document::makePDFCopy(const std::string& sourcePath,
         sourceDocument.DeletePages(static_cast<int>(numbersToDelete.at(i) - i),
                                    1);
 
-    try {
-        sourceDocument.Write(destinationPath.c_str());
-    }
-    catch (PoDoFo::PdfError& e) {
-        std::cerr << e.what() << std::endl;
-
-        const PoDoFo::TDequeErrorInfo& callStack = e.GetCallstack();
-
-        if (callStack.empty())
-            std::cerr << "The callstack is empty" << std::endl;
-        else
-            std::cerr << "The callstack has something:" << std::endl;
-
-        //        for (const PoDoFo::PdfErrorInfo& info : callStack)
-        //            std::cerr << info.GetLine() << std::endl;
-        std::cerr << callStack.back().GetFilename() << " - Line " << callStack.back().GetLine() << std::endl;
-    }
+    sourceDocument.Write(destinationPath.c_str());
 }
 
 std::vector<unsigned int> Document::pageNumbers() const
